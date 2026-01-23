@@ -26,4 +26,4 @@ Implementar un sistema de CI/CD de un servicio REST API (gRPC, … también vál
 - Slides
 - Tener la versión 1.0.0 desplegada a producción
 - Cambiar el mensaje de bienvenida
-- Ver el mensaje a producción
+- Ver el mensaje a producción 
