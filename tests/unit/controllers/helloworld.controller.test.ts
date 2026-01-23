@@ -1,4 +1,4 @@
-import { getHelloWorld } from '../../src/controllers/helloworld.controller.js';
+import { getHelloWorld } from '../../../src/controllers/helloworld.controller.js';
 import { Request, Response } from 'express';
 
 describe('getHelloWorld Controller', () => {
