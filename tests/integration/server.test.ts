@@ -1,5 +1,5 @@
 import request from 'supertest';
-import app from '../src/server.js';
+import app from '../../src/server.js';
 
 describe('GET /', () => {
   it('should return status 200', async () => {
