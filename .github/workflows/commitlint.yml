@@ -28,6 +28,8 @@ jobs:
             echo "Validando commits del PR desde origin/${{ github.base_ref }} hasta HEAD"
             npx commitlint --from=origin/${{ github.base_ref }} --to=HEAD --verbose
           else
-            echo "Validando commits del push desde $GITHUB_EVENT_BEFORE hasta HEAD"
-            npx commitlint --from=$GITHUB_EVENT_BEFORE --to=HEAD --verbose
+            FIRST_COMMIT="${{ github.event.commits[0].id }}"
+            LAST_COMMIT="${{ github.event.after }}"
+            echo "Validando commits del push desde $FIRST_COMMIT hasta $LAST_COMMIT"
+            npx commitlint --from=$FIRST_COMMIT --to=$LAST_COMMIT --verbose
           fi
