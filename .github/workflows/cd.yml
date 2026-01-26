@@ -6,8 +6,12 @@ on:
       - main
 
 jobs:
-  commitlint:
+  release-and-docker:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write      # For semantic-release to push changes
+      packages: write      # For pushing to GitHub Container Registry
 
     steps:
       - name: Checkout repository
