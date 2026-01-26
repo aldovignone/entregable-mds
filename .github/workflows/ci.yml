@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  commitlint:
+  quality-checks:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,7 +21,10 @@ jobs:
           node-version: '22'
 
       - name: Install dependencies
-        run: npm install
+        run: npm install      
 
-      - name: Run tests
-        run: npm test
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run Unit tests
+        run: npm test -- tests/unit/
