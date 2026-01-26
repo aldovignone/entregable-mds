@@ -21,10 +21,10 @@ jobs:
           node-version: '22'
 
       - name: Install dependencies
-        run: npm install
-
-      - name: Run Unit tests
-        run: npm test -- tests/unit/
+        run: npm install      
 
       - name: Run ESLint
         run: npm run lint
+
+      - name: Run Unit tests
+        run: npm test -- tests/unit/
