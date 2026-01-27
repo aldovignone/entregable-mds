@@ -12,13 +12,8 @@ describe('GET /helloworld', () => {
     expect(response.type).toBe('application/json');
   });
 
-  it('should return message property with HelloWorld value', async () => {
+  it('should return message + data property values', async () => {
     const response = await request(app).get('/helloworld');
-    expect(response.body).toEqual({ message: 'HelloWorld!' });
-  });
-
-  it('should have correct message value', async () => {
-    const response = await request(app).get('/helloworld');
-    expect(response.body.message).toBe('HelloWorld!');
+    expect(response.body).toEqual({ message: 'HelloWorld!', data: { foo: 'bar' }   });
   });
 });
