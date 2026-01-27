@@ -12,6 +12,8 @@ jobs:
     permissions:
       contents: write      # For semantic-release to push changes
       packages: write      # For pushing to GitHub Container Registry
+      pull-requests: read
+      statuses: write
 
     steps:
       - name: Checkout repository
