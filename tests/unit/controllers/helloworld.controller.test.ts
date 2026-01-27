@@ -16,7 +16,7 @@ describe('getHelloWorld Controller', () => {
 
   it('should call res.json with correct payload', () => {
     getHelloWorld(mockReq as Request, mockRes as Response);
-    expect(jsonSpy).toHaveBeenCalledWith({ message: 'HelloWorld!' });
+    expect(jsonSpy).toHaveBeenCalledWith({ message: 'HelloWorld!', data: { foo: 'bar' } });
   });
 
   it('should call res.json exactly once', () => {
@@ -30,9 +30,15 @@ describe('getHelloWorld Controller', () => {
     expect(callArgs.message).toBe('HelloWorld!');
   });
 
-  it('should return object with only message property', () => {
+  it('should return data property with correct value', () => {
     getHelloWorld(mockReq as Request, mockRes as Response);
     const callArgs = jsonSpy.mock.calls[0][0];
-    expect(Object.keys(callArgs)).toEqual(['message']);
+    expect(callArgs.data).toEqual({ foo: 'bar' });
+  });
+
+  it('should return object with only message and data properties', () => {
+    getHelloWorld(mockReq as Request, mockRes as Response);
+    const callArgs = jsonSpy.mock.calls[0][0];
+    expect(Object.keys(callArgs)).toEqual(['message', 'data']);
   });
 });
