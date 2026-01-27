@@ -37,6 +37,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
 
+      - name: Detect release
+        id: release
+        run: |
+          if [ -z "$VERSION" ]; then
+            echo "released=false" >> $GITHUB_OUTPUT
+          else
+            echo "released=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -48,6 +57,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
+        # Only run if a new release was made
+        if: steps.release.outputs.released == 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
