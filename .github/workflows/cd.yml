@@ -78,3 +78,31 @@ jobs:
             ghcr.io/${{ github.repository }}:${{ steps.version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Install OpenShift CLI
+        if: steps.version.outputs.version != ''
+        run: |
+          curl -L https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz -o oc.tar.gz
+          tar -xvf oc.tar.gz
+          sudo mv oc /usr/local/bin/
+
+      - name: Login to OpenShift
+        if: steps.version.outputs.version != ''
+        run: |
+          oc login ${{ secrets.OPENSHIFT_SERVER }} \
+            --token=${{ secrets.OPENSHIFT_TOKEN }} \
+            --insecure-skip-tls-verify
+
+      - name: Select OpenShift project
+        if: steps.version.outputs.version != ''
+        run: oc project ${{ secrets.OPENSHIFT_NAMESPACE }}
+
+      - name: Update Deployment image
+        if: steps.version.outputs.version != ''
+        run: |
+          oc set image deployment/${{ secrets.OPENSHIFT_APP_NAME }} \
+            ${{ secrets.OPENSHIFT_APP_NAME }}=ghcr.io/${{ github.repository }}:${{ steps.version.outputs.version }}
+
+      - name: Restart rollout
+        if: steps.version.outputs.version != ''
+        run: oc rollout restart deployment/${{ secrets.OPENSHIFT_APP_NAME }}
