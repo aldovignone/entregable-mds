@@ -80,4 +80,5 @@ jobs:
           SERVER_URL: ${{ vars.PROD_SERVER_URL }}
         run: |
           sleep 10
+          echo "Running e2e tests against server URL: $SERVER_URL"
           npm test -- tests/e2e/
