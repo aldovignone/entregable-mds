@@ -1,6 +1,6 @@
 import request from 'supertest';
 
-const serverUrl = 'http://localhost:3000';
+const serverUrl = process.env.SERVER_URL;
 
 describe('GET /helloworld', () => {
   it('should return status 200', async () => {
