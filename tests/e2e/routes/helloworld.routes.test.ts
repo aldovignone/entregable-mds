@@ -1,7 +1,6 @@
 import request from 'supertest';
 
 const serverUrl = process.env.SERVER_URL;
-console.log(`Using server URL: ${serverUrl}`);
 
 describe('GET /helloworld', () => {
   it('should return status 200', async () => {
