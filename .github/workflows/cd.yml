@@ -29,73 +29,55 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Validate commit squash
-        run: npx commitlint --from HEAD~1 --to HEAD
-
-      - name: Run semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
-
-      - name: Detect release
-        id: release
+      - name: Install OC CLI
         run: |
-          if [ -z "$VERSION" ]; then
-            echo "released=false" >> $GITHUB_OUTPUT
-          else
-            echo "released=true" >> $GITHUB_OUTPUT
+          curl -L https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz -o oc.tar.gz
+          tar -xvf oc.tar.gz
+          sudo mv oc /usr/local/bin/
+
+      - name: Login to OpenShift
+        run: |
+          oc login ${{ secrets.OPENSHIFT_SERVER }} \
+            --token=${{ secrets.OPENSHIFT_TOKEN }} \
+            --insecure-skip-tls-verify=true
+
+      - name: Select project
+        run: |
+          oc project ${{ secrets.OPENSHIFT_NAMESPACE }}
+
+      - name: Check deployment exists
+        run: |
+          oc get deployment entregable-mdsci -o yaml
+
+      - name: Update deployment to latest image
+        run: |
+          REPO_LOWER=$(echo $GITHUB_REPOSITORY | tr '[:upper:]' '[:lower:]')
+          oc set image deployment/entregable-mdsci \
+            entregable-mdsci=ghcr.io/${REPO_LOWER}:latest
+
+      - name: Ensure replicas >= 1
+        run: |
+          CURRENT=$(oc get deployment entregable-mdsci -o jsonpath='{.spec.replicas}')
+          if [ "$CURRENT" -eq 0 ]; then
+            oc scale deployment entregable-mdsci --replicas=1
           fi
 
-      - name: Set up Docker Buildx
-        if: steps.release.outputs.released == 'true'
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        # Only run if a new release was made
-        if: steps.release.outputs.released == 'true'
-        uses: docker/build-push-action@v5
-        with:
-          platforms: linux/amd64
-          context: .
-          push: false
-          load: true
-          tags: |
-            app-test:latest
-
-      - name: Run container for e2e tests
-        if: steps.release.outputs.released == 'true'
+      - name: Force rollout
         run: |
-          docker run -d --name app-test -p 3000:3000 app-test:latest
-          sleep 10  # Wait for the app to start
+          oc rollout restart deployment/entregable-mdsci
+
+      - name: Wait for pod to be ready
+        run: |
+          oc rollout status deployment/entregable-mdsci --timeout=120s
+
+      - name: Show logs of new pod
+        run: |
+          POD=$(oc get pods -l deployment=entregable-mdsci -o jsonpath='{.items[0].metadata.name}')
+          oc logs $POD
 
       - name: Run e2e tests
-        if: steps.release.outputs.released == 'true'
+        env:
+          SERVER_URL: ${{ vars.PROD_SERVER_URL }}
         run: |
+          sleep 10
           npm test -- tests/e2e/
-      
-      - name: Stop container
-        if: always() && steps.release.outputs.released == 'true'
-        run: |
-          docker rm -f app-test || true
-      
-      - name: Login to GitHub Container Registry
-        if: steps.release.outputs.released == 'true'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish Docker image
-        # Only run if a new release was made
-        if: steps.release.outputs.released == 'true'
-        uses: docker/build-push-action@v5
-        with:
-          platforms: linux/amd64
-          context: .
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ env.VERSION }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
