@@ -79,4 +79,5 @@ jobs:
         env:
           SERVER_URL: ${{ vars.PROD_SERVER_URL }}
         run: |
+          sleep 10
           npm test -- tests/e2e/
