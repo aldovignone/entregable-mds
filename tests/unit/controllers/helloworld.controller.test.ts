@@ -16,7 +16,7 @@ describe('getHelloWorld Controller', () => {
 
   it('should call res.json with correct payload', () => {
     getHelloWorld(mockReq as Request, mockRes as Response);
-    expect(jsonSpy).toHaveBeenCalledWith({ message: 'HelloWorld!', data: { foo: 'foo' } });
+    expect(jsonSpy).toHaveBeenCalledWith({ message: 'HelloWorld', data: { foo: 'foo' } });
   });
 
   it('should call res.json exactly once', () => {
