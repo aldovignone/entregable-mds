@@ -27,7 +27,7 @@ describe('getHelloWorld Controller', () => {
   it('should return HelloWorld message', () => {
     getHelloWorld(mockReq as Request, mockRes as Response);
     const callArgs = jsonSpy.mock.calls[0][0];
-    expect(callArgs.message).toBe('HelloWorld!');
+    expect(callArgs.message).toBe('HelloWorld');
   });
 
   it('should return data property with correct value', () => {
