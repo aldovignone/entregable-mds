@@ -14,6 +14,6 @@ describe('GET /helloworld', () => {
 
   it('should return message + data property values', async () => {
     const response = await request(app).get('/helloworld');
-    expect(response.body).toEqual({ message: 'HelloWorld Test 01', data: { foo: 'foo' }   });
+    expect(response.body).toEqual({ message: 'HelloWorld!', data: { foo: 'foo' }   });
   });
 });
